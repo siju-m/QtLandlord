@@ -37,7 +37,8 @@ public:
         Card_End
     };
 
-    Card();
+    Card(){}
+    Card(CardPoint point,CardSuit suit);
 
     void setPoint(CardPoint point);
     void setSuit(CardSuit suit);

@@ -27,6 +27,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         View/cardpanel.h View/cardpanel.cpp
         Model/player.h Model/player.cpp
         Model/cards.h Model/cards.cpp
+        Model/robot.h Model/robot.cpp
+        Model/userplayer.h Model/userplayer.cpp
+        Core/gamecontrol.h Core/gamecontrol.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET QtLandlord APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -49,6 +52,7 @@ endif()
 target_include_directories(QtLandlord PRIVATE
     ${CMAKE_SOURCE_DIR}/Model
     ${CMAKE_SOURCE_DIR}/View
+    ${CMAKE_SOURCE_DIR}/Core
 )
 
 target_link_libraries(QtLandlord PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
