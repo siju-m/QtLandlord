@@ -33,6 +33,7 @@ public:
     Player *getOwner();
 protected:
     void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *event);
 private:
     QPixmap m_front;
     QPixmap m_back;
