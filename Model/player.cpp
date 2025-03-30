@@ -2,12 +2,15 @@
 
 Player::Player(QObject *parent)
     : QObject{parent}
+    , m_score(0)
+    , m_isWin(false)
 {}
 
 Player::Player(QString name, QObject *parent)
-    : QObject(parent)
-    , m_name(name)
-{}
+    : Player(parent)//委托构造函数，调用上面的函数
+{
+    m_name = name;
+}
 
 void Player::setScore(int score)
 {
