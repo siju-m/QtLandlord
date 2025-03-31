@@ -5,6 +5,7 @@
 #include <GameControl.h>
 #include <QMainWindow>
 #include <QLabel>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -34,7 +35,18 @@ public:
     void initPlayerContext();
     // 初始化游戏场景
     void initGameScene();
-
+    // 处理游戏状态
+    void gameStatusProcess(GameControl::GameStatus status);
+    // 发牌
+    void startDispatchCard();
+    // 定时器的处理动作
+    void onDispatchCard();
+    // 移动扑克牌
+    void cardMoveStep(Player* player, int curPos);
+    // 处理分发得到的扑克牌
+    void disposCard(Player* player, Cards &cards);
+    // 更新扑克牌在窗口中的显示
+    void updatePlayerCards(Player* player);
 protected:
     void paintEvent(QPaintEvent *event);
 
@@ -68,5 +80,7 @@ private:
     QPoint m_baseCardPos;
     CardPanel* m_moveCard;
     QVector<CardPanel*> m_last3Card;
+    GameControl::GameStatus m_gameStatus;
+    QTimer* m_timer;
 };
 #endif // GAMEPANEL_H

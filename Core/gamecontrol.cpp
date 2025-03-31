@@ -74,8 +74,8 @@ void GameControl::initAllcards()
             m_allCards.add(c);
         }
     }
-    m_allCards.add(Card(Card::Card_SJ,Card::Suit_End));
-    m_allCards.add(Card(Card::Card_BJ,Card::Suit_End));
+    m_allCards.add(Card(Card::Card_SJ,Card::Suit_Begin));
+    m_allCards.add(Card(Card::Card_BJ,Card::Suit_Begin));
 }
 
 Card GameControl::takeOneCard()

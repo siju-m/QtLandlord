@@ -4,6 +4,11 @@
 
 Cards::Cards() {}
 
+Cards::Cards(const Card &card)
+{
+    add(card);
+}
+
 void Cards::add(const Card &card)
 {
     m_cards.insert(card);
@@ -12,6 +17,14 @@ void Cards::add(const Card &card)
 void Cards::add(const Cards &cards)
 {
     m_cards.unite(cards.m_cards);
+}
+
+void Cards::add(const QVector<Cards> &cards)
+{
+    for(int i=0; i<cards.count(); ++i)
+    {
+        add(cards.at(i));
+    }
 }
 
 Cards &Cards::operator <<(const Card &card)
@@ -26,14 +39,22 @@ Cards &Cards::operator <<(const Cards &cards)
     return *this;
 }
 
-void Cards::remove(Card &card)
+void Cards::remove(const Card &card)
 {
     m_cards.remove(card);
 }
 
-void Cards::remove(Cards &cards)
+void Cards::remove(const Cards &cards)
 {
     m_cards.subtract(cards.m_cards);
+}
+
+void Cards::remove(const QVector<Cards> &cards)
+{
+    for(int i=0; i<cards.size(); ++i)
+    {
+        remove(cards.at(i));
+    }
 }
 
 int Cards::cardCount()
@@ -55,10 +76,10 @@ Card::CardPoint Cards::maxPoint()
 {
     Card::CardPoint max = Card::Card_Begin;
     if(!m_cards.isEmpty()){
-        for(auto &it : m_cards){
-            if(it.point() > max)
+        for(auto it = m_cards.begin();it!=m_cards.end();++it){
+            if(it->point() > max)
             {
-                max = it.point();
+                max = it->point();
             }
         }
     }
@@ -67,23 +88,23 @@ Card::CardPoint Cards::maxPoint()
 
 Card::CardPoint Cards::minPoint()
 {
-    Card::CardPoint mix = Card::Card_End;
+    Card::CardPoint min = Card::Card_End;
     if(!m_cards.isEmpty()){
-        for(auto &it : m_cards){
-            if(it.point() < mix)
+        for(auto it = m_cards.begin();it!=m_cards.end();++it){
+            if(it->point() < min)
             {
-                mix = it.point();
+                min = it->point();
             }
         }
     }
-    return mix;
+    return min;
 }
 
 int Cards::pointCount(Card::CardPoint point)
 {
     int count = 0;
-    for(auto &it : m_cards){
-        if(it.point()==point)
+    for(auto it = m_cards.begin();it!=m_cards.end();++it){
+        if(it->point()==point)
             ++count;
     }
     return count;
@@ -112,8 +133,8 @@ Card Cards::takeRandCard()
 CardList Cards::toCardList(SortType type)
 {
     CardList list;
-    for(auto it : m_cards){
-        list<<it;
+    for(auto it = m_cards.begin();it!=m_cards.end();++it){
+        list<<*it;
     }
     if(type == Asc){
         std::sort(list.begin(),list.end(),lessSort);

@@ -48,7 +48,7 @@ bool operator ==(const Card &left ,const Card &right){
 }
 
 bool operator <(const Card& left, const Card& right){
-    return left.point() < right.point();
+    return lessSort(left,right);
 }
 
 uint qHash(const Card &card)

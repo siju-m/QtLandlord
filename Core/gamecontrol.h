@@ -57,7 +57,7 @@ public:
     // 处理叫地主
     // 处理出牌
 signals:
-
+    void playerStatusChanged(Player* player,PlayerStatus status);
 private:
     Robot* m_robotLeft;
     Robot* m_robotRight;

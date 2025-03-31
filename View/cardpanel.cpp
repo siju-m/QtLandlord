@@ -64,11 +64,13 @@ Player *CardPanel::getOwner()
 
 void CardPanel::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event)
     QPainter p(this);
+
     if(m_isFront){
-        p.drawPixmap(rect(),m_front);
+        p.drawPixmap(rect(), m_front);
     }else{
-        p.drawPixmap(rect(),m_back);
+        p.drawPixmap(rect(), m_back);
     }
 }
 
