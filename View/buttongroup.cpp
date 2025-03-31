@@ -55,7 +55,23 @@ void ButtonGroup::initButtons()
     });
 }
 
-void ButtonGroup::selectPanel(Panel type)
+void ButtonGroup::selectPanel(Panel type, int bet)
 {
     ui->stackedWidget->setCurrentIndex(type);
+    if(type != CallLord){
+        return;
+    }
+    if(bet == 0){
+        ui->oneScore->setVisible(true);
+        ui->twoScore->setVisible(true);
+        ui->threeScore->setVisible(true);
+    }else if(bet == 1){
+        ui->oneScore->setVisible(false);
+        ui->twoScore->setVisible(true);
+        ui->threeScore->setVisible(true);
+    }else if(bet == 2){
+        ui->oneScore->setVisible(false);
+        ui->twoScore->setVisible(false);
+        ui->threeScore->setVisible(true);
+    }
 }

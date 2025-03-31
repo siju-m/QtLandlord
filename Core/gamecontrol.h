@@ -5,6 +5,20 @@
 #include <Robot.h>
 #include <UserPlayer.h>
 
+struct BetRecord{
+    BetRecord(){
+
+    }
+    void reset(){
+        player = nullptr;
+        bet = 0;
+        times = 0;
+    }
+    Player* player;
+    int bet;
+    int times;// 第几次叫地主
+};
+
 class GameControl : public QObject
 {
     Q_OBJECT
@@ -54,10 +68,18 @@ public:
     void becomeLord(Player* player);
     // 清空所有玩家分数
     void clearPlayerScore();
+    // 得到玩家下注的最高分数
+    int getPlayerMaxBet();
+
     // 处理叫地主
+    void onGrabBet(Player* player, int bet);
     // 处理出牌
 signals:
     void playerStatusChanged(Player* player,PlayerStatus status);
+    // 通知玩家抢地主了
+    void notifyGrabLordBet(Player* player, int bet, bool flag);
+    // 游戏状态变化
+    void gameStatusChanged(GameStatus status);
 private:
     Robot* m_robotLeft;
     Robot* m_robotRight;
@@ -66,6 +88,7 @@ private:
     Player* m_pendPlayer;
     Cards m_pendCards;
     Cards m_allCards;
+    BetRecord m_betRecord;
 };
 
 #endif // GAMECONTROL_H

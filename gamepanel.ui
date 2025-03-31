@@ -51,6 +51,9 @@
      </spacer>
     </item>
     <item>
+     <widget class="ButtonGroup" name="btnGroup" native="true"/>
+    </item>
+    <item>
      <spacer name="verticalSpacer_2">
       <property name="orientation">
        <enum>Qt::Orientation::Vertical</enum>
@@ -65,9 +68,6 @@
        </size>
       </property>
      </spacer>
-    </item>
-    <item>
-     <widget class="ButtonGroup" name="btnGroup" native="true"/>
     </item>
    </layout>
   </widget>

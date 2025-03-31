@@ -71,7 +71,7 @@ public:
     virtual void prepareCallLord();
     virtual void preparePlayHand();
 signals:
-
+    void notifyGrabLordBet(Player* player, int bet);
 protected:
     int m_score;
     QString m_name;

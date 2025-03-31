@@ -56,6 +56,10 @@ void GamePanel::gameControlInit()
     Robot* rightRobot = m_gameCtl->getRightRobot();
     UserPlayer* user = m_gameCtl->getUserPlayer();
     m_playerList<< leftRobot<< rightRobot<< user;
+
+    connect(m_gameCtl,&GameControl::playerStatusChanged,this,&GamePanel::onPlayerStatusChanged);
+    connect(m_gameCtl,&GameControl::notifyGrabLordBet,this,&GamePanel::onGrabLordBet);
+    connect(m_gameCtl,&GameControl::gameStatusChanged,this,&GamePanel::gameStatusProcess);
 }
 
 void GamePanel::updatePlayerScore()
@@ -115,7 +119,9 @@ void GamePanel::initButtonGroup()
     });
     connect(ui->btnGroup, &ButtonGroup::playHand, this, [=](){});
     connect(ui->btnGroup, &ButtonGroup::pass, this, [=](){});
-    connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=](){});
+    connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=](int bet){
+        m_gameCtl->getUserPlayer()->grabLordBet(bet);
+    });
 }
 
 void GamePanel::initPlayerContext()
@@ -280,6 +286,46 @@ void GamePanel::onDispatchCard()
     // 移动扑克牌
     cardMoveStep(curPlayer,curMovePos);
     curMovePos += 15;
+}
+
+void GamePanel::onPlayerStatusChanged(Player *player, GameControl::PlayerStatus status)
+{
+    switch (status) {
+    case GameControl::ThinkingForCallLord:
+        if(player == m_gameCtl->getCurrentPlayer()){
+            ui->btnGroup->selectPanel(ButtonGroup::CallLord,m_gameCtl->getPlayerMaxBet());
+            m_baseCard->hide();
+            m_moveCard->hide();
+        }
+        break;
+    case GameControl::ThinKingForplayHand:
+
+        break;
+    case GameControl::Winning:
+
+        break;
+    default:
+        break;
+    }
+}
+
+void GamePanel::onGrabLordBet(Player *player, int bet, bool flag)
+{
+    // 显示抢地主的信息提示
+    PlayerContext context = m_contextMap[player];
+    if(bet == 0){
+        context.info->setPixmap(QPixmap(":/images/buqiang.png"));
+    }else{
+        if(flag){
+            context.info->setPixmap(QPixmap(":/images/jiaodizhu.png"));
+        }else{
+            context.info->setPixmap(QPixmap(":/images/qiangdizhu.png"));
+        }
+    }
+    context.info->show();
+
+    // 显示叫地主的分数
+    // 播放分数的背景音乐
 }
 
 void GamePanel::cardMoveStep(Player *player, int curPos)
