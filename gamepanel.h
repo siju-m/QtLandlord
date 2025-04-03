@@ -1,6 +1,7 @@
 #ifndef GAMEPANEL_H
 #define GAMEPANEL_H
 
+#include "animationwindow.h"
 #include <CardPanel.h>
 #include <GameControl.h>
 #include <QMainWindow>
@@ -20,7 +21,7 @@ class GamePanel : public QMainWindow
 public:
     GamePanel(QWidget *parent = nullptr);
     ~GamePanel();
-
+    enum AnimationType{ShunZi, LianDui, Plane, JokerBomb, Bomb, Bet};
     // 初始化游戏控制类信息
     void gameControlInit();
     // 更新玩家分数
@@ -52,6 +53,9 @@ public:
     void onPlayerStatusChanged(Player* player, GameControl::PlayerStatus status);
     // 处理玩家抢地主
     void onGrabLordBet(Player* player, int bet, bool flag);
+
+    // 显示特效动画
+    void showAnimation(AnimationType type, int bet);
 protected:
     void paintEvent(QPaintEvent *event);
 
@@ -87,5 +91,6 @@ private:
     QVector<CardPanel*> m_last3Card;
     GameControl::GameStatus m_gameStatus;
     QTimer* m_timer;
+    AnimationWindow* m_animation;
 };
 #endif // GAMEPANEL_H

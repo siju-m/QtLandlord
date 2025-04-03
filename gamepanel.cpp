@@ -40,6 +40,8 @@ GamePanel::GamePanel(QWidget *parent)
     // 定时器实例化
     m_timer = new QTimer(this);
     connect(m_timer,&QTimer::timeout,this,&GamePanel::onDispatchCard);
+
+    m_animation = new AnimationWindow(this);
 }
 
 GamePanel::~GamePanel()
@@ -326,7 +328,42 @@ void GamePanel::onGrabLordBet(Player *player, int bet, bool flag)
     context.info->show();
 
     // 显示叫地主的分数
+    showAnimation(AnimationType::Bet, bet);
     // 播放分数的背景音乐
+}
+
+void GamePanel::showAnimation(AnimationType type, int bet)
+{
+    switch(type)
+    {
+    case AnimationType::LianDui:
+    case AnimationType::ShunZi:
+        // m_animation->setFixedSize(250, 150);
+        // m_animation->move((width()-m_animation->width())/2, 200);
+        // m_animation->showSequence((AnimationWindow::Type)type);
+        break;
+    case AnimationType::Plane:
+        // m_animation->setFixedSize(800, 75);
+        // m_animation->move((width()-m_animation->width())/2, 200);
+        // m_animation->showPlane();
+        break;
+    case AnimationType::Bomb:
+        // m_animation->setFixedSize(180, 200);
+        // m_animation->move((width()-m_animation->width())/2, (height() - m_animation->height()) / 2 - 70);
+        // m_animation->showBomb();
+        break;
+    case AnimationType::JokerBomb:
+        // m_animation->setFixedSize(250, 200);
+        // m_animation->move((width()-m_animation->width())/2, (height() - m_animation->height()) / 2 - 70);
+        // m_animation->showJokerBomb();
+        break;
+    case AnimationType::Bet:
+        m_animation->setFixedSize(160, 98);
+        m_animation->move((width()-m_animation->width())/2, (height()-m_animation->height())/2-140);
+        m_animation->showBetScore(bet);
+        break;
+    }
+    m_animation->show();
 }
 
 void GamePanel::cardMoveStep(Player *player, int curPos)
