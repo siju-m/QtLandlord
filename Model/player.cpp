@@ -1,4 +1,5 @@
 #include "player.h"
+#include <qdebug.h>
 
 Player::Player(QObject *parent)
     : QObject{parent}
@@ -157,3 +158,4 @@ void Player::preparePlayHand()
 {
 
 }
+

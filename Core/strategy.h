@@ -34,11 +34,24 @@ public:
     // 10. 最优的顺子的集合的筛选函数
     QVector<Cards> pickOptimalSeqSingles();
 private:
+    using function = Cards (Strategy::*)(Card::CardPoint point);
+    struct CardInfo{
+        Card::CardPoint begin;
+        Card::CardPoint end;
+        int extra;//顺子或者连对的数量
+        bool beat;
+        int number;// 指定点数的牌的数量
+        int base;//最基础的顺子或者连对的数量
+        function getSeq;
+    };
     QVector<Cards> getCards(Card::CardPoint point, int number);
     QVector<Cards> getTripleSingleOrPair(Card::CardPoint begin, PlayHand::HandType type);
     QVector<Cards> getPlane(Card::CardPoint begin);
     QVector<Cards> getPlane2SingleOr2Pair(Card::CardPoint begin, PlayHand::HandType type);
-    QVector<Cards> getSeqPairOrSeqSingle(Card::CardPoint begin, int extra, bool beat);
+    QVector<Cards> getSeqPairOrSeqSingle(CardInfo &info);
+    Cards getBaseSeqPair(Card::CardPoint point);
+    Cards getBaseSeqSingle(Card::CardPoint point);
+    QVector<Cards> getBomb(Card::CardPoint begin);
 private:
     Player* m_player;
     Cards m_cards;

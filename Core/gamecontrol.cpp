@@ -2,6 +2,7 @@
 
 #include <QRandomGenerator>
 #include <QTimer>
+#include <qdebug.h>
 
 GameControl::GameControl(QObject *parent)
     : QObject{parent}
@@ -113,8 +114,9 @@ void GameControl::startLordCard()
     emit playerStatusChanged(m_currPlayer,ThinkingForCallLord);
 }
 
-void GameControl::becomeLord(Player* player)
+void GameControl::becomeLord(Player* player, int bet)
 {
+    m_curBet = bet;
     player->setRole(Player::Lord);
     player->getPrevPlayer()->setRole(Player::Farmer);
     player->getNextPlayer()->setRole(Player::Farmer);
@@ -154,9 +156,13 @@ void GameControl::onGrabBet(Player *player, int bet)
     }else{
         emit notifyGrabLordBet(player, bet, false);
     }
+
+    qDebug() << "curent player name: " << player->getName() << ", 下注分数: "
+             << bet<< ", m_betRecord.times: " << m_betRecord.times;
+
     // 判断玩家下注是不是三分，如果是则抢地主结束
     if(bet == 3){
-        becomeLord(player);
+        becomeLord(player, bet);
         m_betRecord.reset();
         return;
     }
@@ -171,7 +177,7 @@ void GameControl::onGrabBet(Player *player, int bet)
         if(m_betRecord.bet == 0){
             emit gameStatusChanged(DispatchCard);
         }else{
-            becomeLord(m_betRecord.player);
+            becomeLord(m_betRecord.player, m_betRecord.bet);
         }
         m_betRecord.reset();
         return;

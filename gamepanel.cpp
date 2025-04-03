@@ -121,6 +121,7 @@ void GamePanel::initButtonGroup()
     connect(ui->btnGroup, &ButtonGroup::pass, this, [=](){});
     connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=](int bet){
         m_gameCtl->getUserPlayer()->grabLordBet(bet);
+        ui->btnGroup->selectPanel(ButtonGroup::Empty);
     });
 }
 
@@ -292,7 +293,7 @@ void GamePanel::onPlayerStatusChanged(Player *player, GameControl::PlayerStatus 
 {
     switch (status) {
     case GameControl::ThinkingForCallLord:
-        if(player == m_gameCtl->getCurrentPlayer()){
+        if(player == m_gameCtl->getUserPlayer()){
             ui->btnGroup->selectPanel(ButtonGroup::CallLord,m_gameCtl->getPlayerMaxBet());
             m_baseCard->hide();
             m_moveCard->hide();
