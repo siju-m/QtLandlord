@@ -57,13 +57,21 @@ public:
     void onGrabLordBet(Player* player, int bet, bool flag);
     // 处理玩家出牌
     void onDisposePlayHand(Player* player, Cards &cards);
+    // 处理玩家选牌
+    void onCardSelected(Qt::MouseButton button);
+    // 处理用户玩家出牌
+    void onUserPlayHand();
+    // 用户玩家放弃出牌
+    void onUserPass();
 
     // 显示特效动画
     void showAnimation(AnimationType type, int bet = 0);
     // 隐藏玩家打出的牌
     void hidePlayerDropCards(Player* player);
+
 protected:
     void paintEvent(QPaintEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 
 private:
     enum CardAlign{Horizontal,Vertical};
@@ -98,6 +106,8 @@ private:
     GameControl::GameStatus m_gameStatus;
     QTimer* m_timer;
     AnimationWindow* m_animation;
+    CardPanel* m_curSelCard;
+    QSet<CardPanel*> m_selectCards;
     QRect m_cardsRect;
     QHash<CardPanel*, QRect> m_userCards;
 };

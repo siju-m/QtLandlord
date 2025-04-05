@@ -2,6 +2,7 @@
 #include "./ui_gamepanel.h"
 #include "PlayHand.h"
 
+#include <QMouseEvent>
 #include <QPainter>
 #include <QRandomGenerator>
 
@@ -110,6 +111,8 @@ void GamePanel::cropImage(QPixmap &pix, int x, int y, Card &card)
     panel->setCard(card);
     panel->hide();
     m_cardMap.insert(card, panel);
+
+    connect(panel, &CardPanel::cardSelected, this, &GamePanel::onCardSelected);
 }
 
 void GamePanel::initButtonGroup()
@@ -125,8 +128,8 @@ void GamePanel::initButtonGroup()
         // 修改游戏状态为发牌
         gameStatusProcess(GameControl::DispatchCard);
     });
-    connect(ui->btnGroup, &ButtonGroup::playHand, this, [=](){});
-    connect(ui->btnGroup, &ButtonGroup::pass, this, [=](){});
+    connect(ui->btnGroup, &ButtonGroup::playHand, this, &GamePanel::onUserPlayHand);
+    connect(ui->btnGroup, &ButtonGroup::pass, this, &GamePanel::onUserPass);
     connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=](int bet){
         m_gameCtl->getUserPlayer()->grabLordBet(bet);
         ui->btnGroup->selectPanel(ButtonGroup::Empty);
@@ -226,7 +229,8 @@ void GamePanel::gameStatusProcess(GameControl::GameStatus status)
         for(int i=0; i<last3Card.size(); ++i){
             QPixmap front = m_cardMap[last3Card.at(i)]->getImage();
             m_last3Card[i]->setImage(front,m_cardBackImg);
-            m_last3Card[i]->hide();
+            m_last3Card[i]->setFrontSide(false);
+            m_last3Card[i]->show();
         }
         // 开始叫地主
         m_gameCtl->startLordCard();
@@ -234,8 +238,10 @@ void GamePanel::gameStatusProcess(GameControl::GameStatus status)
     case GameControl::PlayingHand:
         // 显示地主的三张底牌
         for(auto &it : m_last3Card){
-            it->show();
+            it->setFrontSide(true);
         }
+        update();
+
         for(auto &it : m_playerList){
             PlayerContext &context = m_contextMap[it];
             // 隐藏各个玩家在抢地主过程中的提示信息
@@ -400,6 +406,96 @@ void GamePanel::onDisposePlayHand(Player *player, Cards &cards)
 
 }
 
+void GamePanel::onCardSelected(Qt::MouseButton button)
+{
+    // 判断是否是出牌状态
+    if(m_gameStatus == GameControl::DispatchCard ||
+        m_gameStatus == GameControl::CallingLord)
+        return;
+
+    // 判断发出信号的牌的所有者是不是用户玩家
+    CardPanel* panel = (CardPanel*)sender();
+    if(panel->getOwner() != m_gameCtl->getUserPlayer())
+        return;
+
+    // 保存当前被选中的牌的窗口对象
+    m_curSelCard = panel;
+    // 根据鼠标按键决定行为
+    if(button == Qt::LeftButton){
+        // 设置扑克牌的选中状态
+        panel->setSelected(!panel->isSelected());
+        // 更新扑克牌在窗口中的显示
+        updatePlayerCards(panel->getOwner());
+        // 保存或删除扑克牌窗口对象
+        QSet<CardPanel*>::ConstIterator it =m_selectCards.find(panel);
+        if(it == m_selectCards.constEnd()){
+            m_selectCards.insert(panel);
+        }else{
+            m_selectCards.erase(it);
+        }
+    }else if(button == Qt::RightButton){
+        // 调用出牌的槽函数
+        onUserPlayHand();
+    }
+}
+
+void GamePanel::onUserPlayHand()
+{
+    // 判断游戏状态
+    if(m_gameStatus != GameControl::PlayingHand)
+        return;
+    // 判断玩家是不是用户玩家
+    if(m_gameCtl->getCurrentPlayer() != m_gameCtl->getUserPlayer())
+        return;
+    // 判断要出的牌是否为空
+    if(m_selectCards.isEmpty())
+        return;
+    // 得到要打出牌的牌型
+    Cards cs;
+    for(auto it = m_selectCards.begin(); it!=m_selectCards.end(); ++it){
+        Card card = (*it)->getCard();
+        cs.add(card);
+    }
+    PlayHand hand(cs);
+    PlayHand::HandType type = hand.getHandType();
+    if(type == PlayHand::Hand_Unknown)
+        return;
+    // 判断当前玩家的牌能否压住上一家的牌
+    if(m_gameCtl->getPendPlayer() != m_gameCtl->getUserPlayer()){
+        Cards cards = m_gameCtl->getPendCards();
+        if(!hand.canBeat(PlayHand(cards))){
+            return;
+        }
+    }
+    // 通过玩家对象出牌
+    m_gameCtl->getUserPlayer()->playHand(cs);
+    // 清空容器
+    m_selectCards.clear();
+}
+
+void GamePanel::onUserPass()
+{
+    // 判断是不是用户玩家
+    Player* userPlayer = m_gameCtl->getUserPlayer();
+    Player* curPlayer = m_gameCtl->getCurrentPlayer();
+    if(userPlayer != curPlayer)
+        return;
+    // 判断当前玩家是不是上次出牌的玩家
+    Player* pendPlayer = m_gameCtl->getPendPlayer();
+    if(pendPlayer == userPlayer || pendPlayer == nullptr)
+        return;
+    // 打出一个空的Cards对象
+    Cards empty;
+    userPlayer->playHand(empty);
+    // 清空用户选择但未打出的牌
+    for(auto it = m_selectCards.begin(); it!=m_selectCards.end(); ++it){
+        (*it)->setSelected(false);
+    }
+    m_selectCards.clear();
+    // 更新玩家手牌
+    updatePlayerCards(userPlayer);
+}
+
 void GamePanel::showAnimation(AnimationType type, int bet)
 {
     switch(type)
@@ -446,6 +542,7 @@ void GamePanel::hidePlayerDropCards(Player *player)
                 m_cardMap[it]->hide();
             }
         }
+        it->lastCards.clear();
     }
 }
 
@@ -494,6 +591,9 @@ void GamePanel::updatePlayerCards(Player *player)
 {
     Cards cards = player->getCards();
     CardList cardList = cards.toCardList();
+
+    m_cardsRect = QRect();
+    m_userCards.clear();
     // 取出展示扑克牌的区域
     int cardSpace = 20;
     QRect cardRect = m_contextMap[player].cardRect;
@@ -515,12 +615,9 @@ void GamePanel::updatePlayerCards(Player *player)
 
             m_cardsRect = QRect(leftX, topY,cardSpace * i + m_cardSize.width(), m_cardSize.height());
             int curWidth = 0;
-            if(cardList.size() - 1 == i)
-            {
+            if(cardList.size() - 1 == i){
                 curWidth = m_cardSize.width();
-            }
-            else
-            {
+            }else{
                 curWidth = cardSpace;
             }
             QRect cardRect(leftX + cardSpace * i, topY, curWidth, m_cardSize.height());
@@ -601,5 +698,23 @@ void GamePanel::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
     p.drawPixmap(rect(),m_bkImage);
+}
+
+void GamePanel::mouseMoveEvent(QMouseEvent *event)
+{
+    if(event->buttons() & Qt::LeftButton){
+        QPoint pt = event->pos();
+        if(!m_cardsRect.contains(pt)){
+            m_curSelCard = nullptr;
+        }else{
+            QList<CardPanel*> list = m_userCards.keys();
+            for(const auto &it : list){
+                if(m_userCards[it].contains(pt) && m_curSelCard != it){
+                    it->clicked();
+                    m_curSelCard = it;
+                }
+            }
+        }
+    }
 }
 

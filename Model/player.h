@@ -64,7 +64,7 @@ public:
     void playHand(Cards &cards);
 
     // 设置出牌的玩家已经待处理的牌
-    void setPendingInfo(Player* player, Cards& cards);
+    // void setPendingInfo(Player* player, Cards& cards);
     Player* getPendPlayer();
     Cards getPendCards();
 

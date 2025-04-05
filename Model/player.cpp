@@ -138,11 +138,11 @@ void Player::playHand(Cards &cards)
     emit notifyPlayHand(this, cards);
 }
 
-void Player::setPendingInfo(Player *player, Cards &cards)
-{
-    m_pendPlayer = player;
-    m_pendCards = cards;
-}
+// void Player::setPendingInfo(Player *player, Cards &cards)
+// {
+//     m_pendPlayer = player;
+//     m_pendCards = cards;
+// }
 
 Player *Player::getPendPlayer()
 {
