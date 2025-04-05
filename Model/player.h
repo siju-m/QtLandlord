@@ -64,14 +64,22 @@ public:
     void playHand(Cards &cards);
 
     // 设置出牌的玩家已经待处理的牌
-    void setPendingInfo(Player* player,Cards& cards);
+    void setPendingInfo(Player* player, Cards& cards);
     Player* getPendPlayer();
     Cards getPendCards();
+
+    // 存储出牌玩家打出的牌
+    void onStorePendingInfo(Player* player, Cards& cards);
 
     virtual void prepareCallLord();
     virtual void preparePlayHand();
 signals:
+    // 通知已经叫地主
     void notifyGrabLordBet(Player* player, int bet);
+    // 通知已经出牌
+    void notifyPlayHand(Player* player, Cards& cards);
+    // 通知已经发牌了
+    void notifyPickCards(Player* player, const Cards& cards);
 protected:
     int m_score;
     QString m_name;
@@ -84,7 +92,7 @@ protected:
     Player* m_next;
     Cards m_cards;//玩家手牌
     Cards m_pendCards;
-    Player* m_pendPlayer;
+    Player* m_pendPlayer = nullptr;
 };
 
 #endif // PLAYER_H

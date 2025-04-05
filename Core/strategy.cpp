@@ -1,6 +1,7 @@
 #include "strategy.h"
 #include <QMap>
 #include <functional>
+#include <qdebug.h>
 
 Strategy::Strategy(Player *player, const Cards &cards)
     : m_player(player)
@@ -238,7 +239,7 @@ Cards Strategy::getGreaterCards(PlayHand type)
 {
     // 出牌玩家和当前玩家是不是队友
     Player *pendPlayer = m_player->getPendPlayer();
-    if(m_player->getRole() != pendPlayer->getRole() && pendPlayer->getCards().cardCount() <= 3){
+    if(pendPlayer != nullptr && m_player->getRole() != pendPlayer->getRole() && pendPlayer->getCards().cardCount() <= 3){
         QVector<Cards> bombs = findCardsByCount(4);
         for(int i=0; i<bombs.size(); ++i){
             if(PlayHand(bombs[i]).canBeat(type)){

@@ -1,5 +1,7 @@
 #include "gamecontrol.h"
 
+#include "PlayHand.h"
+
 #include <QRandomGenerator>
 #include <QTimer>
 #include <qdebug.h>
@@ -45,6 +47,16 @@ void GameControl::playerInit()
     connect(m_user,&UserPlayer::notifyGrabLordBet,this,&GameControl::onGrabBet);
     connect(m_robotRight,&UserPlayer::notifyGrabLordBet,this,&GameControl::onGrabBet);
     connect(m_robotLeft,&UserPlayer::notifyGrabLordBet,this,&GameControl::onGrabBet);
+
+    // 处理玩家出牌
+    connect(m_robotLeft, &Player::notifyPlayHand, this, &GameControl::onPlayHand);
+    connect(m_robotRight, &Player::notifyPlayHand, this, &GameControl::onPlayHand);
+    connect(m_user, &Player::notifyPlayHand, this, &GameControl::onPlayHand);
+
+    // 传递出牌玩家对象打出的牌
+    connect(this, &GameControl::pendingInfo, m_robotRight, &Player::onStorePendingInfo);
+    connect(this, &GameControl::pendingInfo, m_robotLeft, &Player::onStorePendingInfo);
+    connect(this, &GameControl::pendingInfo, m_user, &Player::onStorePendingInfo);
 }
 
 Robot *GameControl::getLeftRobot()
@@ -70,6 +82,16 @@ void GameControl::setCurrentPlayer(Player* player)
 Player *GameControl::getCurrentPlayer()
 {
     return m_currPlayer;
+}
+
+Player *GameControl::getPendPlayer()
+{
+    return m_pendPlayer;
+}
+
+Cards GameControl::getPendCards()
+{
+    return m_pendCards;
 }
 
 void GameControl::initAllcards()
@@ -187,4 +209,54 @@ void GameControl::onGrabBet(Player *player, int bet)
     // 发送信号给主界面，告知当前状态为抢地主
     emit playerStatusChanged(m_currPlayer,ThinkingForCallLord);
     m_currPlayer->prepareCallLord();
+}
+
+void GameControl::onPlayHand(Player *player, Cards &cards)
+{
+    // 将玩家出牌信号转发给主界面
+    emit notifyPlayHand(player, cards);
+
+    if(!cards.isEmpty()){
+        m_pendPlayer = player;
+        m_pendCards = cards;
+        emit pendingInfo(m_pendPlayer, m_pendCards);
+    }
+    // 如果有炸弹，底分翻倍
+    PlayHand::HandType type = PlayHand(cards).getHandType();
+    if(type == PlayHand::Hand_Bomb || type == PlayHand::Hand_Bomb_Jokers){
+        m_curBet*=2;
+    }
+    // 如果玩家的牌出完了，计算本局游戏的总分
+    if(player->getCards().isEmpty()){
+        Player* prev = player->getPrevPlayer();
+        Player* next = player->getNextPlayer();
+        if(player->getRole() == Player::Lord){
+            player->setScore(player->getScore() + 2*m_curBet);
+            prev->setScore(prev->getScore() - m_curBet);
+            next->setScore(next->getScore() - m_curBet);
+            player->setWin(true);
+            prev->setWin(false);
+            next->setWin(false);
+        }else{
+            player->setWin(true);
+            player->setScore(player->getScore() + m_curBet);
+            if(prev->getRole() == Player::Lord){
+                prev->setScore(prev->getScore() - 2*m_curBet);
+                next->setScore(next->getScore() + m_curBet);
+                prev->setWin(false);
+                next->setWin(true);
+            }else{
+                prev->setScore(prev->getScore() + m_curBet);
+                next->setScore(next->getScore() - 2 * m_curBet);
+                prev->setWin(true);
+                next->setWin(false);
+            }
+        }
+        emit playerStatusChanged(player, Winning);
+        return;
+    }
+    // 牌没有出完，下一个玩家继续出牌
+    m_currPlayer = player->getNextPlayer();
+    m_currPlayer->preparePlayHand();
+    emit playerStatusChanged(m_currPlayer, ThinKingForplayHand);
 }

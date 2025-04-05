@@ -16,6 +16,8 @@ public:
 
     // 考虑叫地主
     void thinkCallLord();
+    // 考虑出牌
+    void thinkPlayHand();
 };
 
 #endif // ROBOT_H

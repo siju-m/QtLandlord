@@ -43,9 +43,11 @@ public:
     // 移动扑克牌
     void cardMoveStep(Player* player, int curPos);
     // 处理分发得到的扑克牌
-    void disposCard(Player* player, Cards &cards);
+    void disposeCard(Player* player, const Cards &cards);
     // 更新扑克牌在窗口中的显示
     void updatePlayerCards(Player* player);
+    // 加载玩家头像
+    QPixmap loadRoleImage(Player::Sex sex, Player::Direction direct, Player::Role role);
 
     // 定时器的处理动作
     void onDispatchCard();
@@ -53,9 +55,13 @@ public:
     void onPlayerStatusChanged(Player* player, GameControl::PlayerStatus status);
     // 处理玩家抢地主
     void onGrabLordBet(Player* player, int bet, bool flag);
+    // 处理玩家出牌
+    void onDisposePlayHand(Player* player, Cards &cards);
 
     // 显示特效动画
-    void showAnimation(AnimationType type, int bet);
+    void showAnimation(AnimationType type, int bet = 0);
+    // 隐藏玩家打出的牌
+    void hidePlayerDropCards(Player* player);
 protected:
     void paintEvent(QPaintEvent *event);
 
@@ -92,5 +98,7 @@ private:
     GameControl::GameStatus m_gameStatus;
     QTimer* m_timer;
     AnimationWindow* m_animation;
+    QRect m_cardsRect;
+    QHash<CardPanel*, QRect> m_userCards;
 };
 #endif // GAMEPANEL_H
