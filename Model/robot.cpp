@@ -15,7 +15,7 @@ void Robot::prepareCallLord()
 {
     RobotGrapLord* subThread = new RobotGrapLord(this);
     connect(subThread, &RobotGrapLord::finished, this, [=](){
-        qDebug() << "RobotGrapLord 子线程对象析构..." << ", Robot name: " << this->getName();
+        // qDebug() << "RobotGrapLord 子线程对象析构..." << ", Robot name: " << this->getName();
         subThread->deleteLater();
     });
     subThread->start();
@@ -25,7 +25,7 @@ void Robot::preparePlayHand()
 {
     RobotPlayHand* subThread = new RobotPlayHand(this);
     connect(subThread, &RobotGrapLord::finished, this, [=](){
-        qDebug() << "RobotPlayHand 子线程对象析构..." << ", Robot name: " << this->getName();
+        // qDebug() << "RobotPlayHand 子线程对象析构..." << ", Robot name: " << this->getName();
         subThread->deleteLater();
     });
     subThread->start();
