@@ -2,9 +2,10 @@
 #define GAMEPANEL_H
 
 #include "animationwindow.h"
+#include "bgmcontrol.h"
 #include "countdown.h"
-#include <CardPanel.h>
-#include <GameControl.h>
+#include "gamecontrol.h"
+#include "cardpanel.h"
 #include <QMainWindow>
 #include <QLabel>
 #include <QTimer>
@@ -50,7 +51,7 @@ public:
     // 加载玩家头像
     QPixmap loadRoleImage(Player::Sex sex, Player::Direction direct, Player::Role role);
 
-    // 定时器的处理动作
+    // 定时器的处理发牌动作
     void onDispatchCard();
     // 处理玩家状态变化
     void onPlayerStatusChanged(Player* player, GameControl::PlayerStatus status);
@@ -116,5 +117,6 @@ private:
     QRect m_cardsRect;
     QHash<CardPanel*, QRect> m_userCards;
     CountDown* m_countDown;
+    BGMControl* m_bgm;
 };
 #endif // GAMEPANEL_H

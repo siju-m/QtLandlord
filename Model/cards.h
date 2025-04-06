@@ -43,7 +43,7 @@ public:
     bool contains(const Card &card);
     bool contains(const Cards &cards);
     //随机取出一张牌
-    Card takeRandCard();
+    Card takeRandomCard();
 
     CardList toCardList(SortType type = Desc);
 private:

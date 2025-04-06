@@ -109,7 +109,7 @@ void GameControl::initAllcards()
 
 Card GameControl::takeOneCard()
 {
-    return m_allCards.takeRandCard();
+    return m_allCards.takeRandomCard();
 }
 
 Cards GameControl::getSurplusCards()
