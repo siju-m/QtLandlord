@@ -21,7 +21,7 @@ protected:
 private:
     QPixmap m_clock;
     QPixmap m_number;
-    QTimer* m_timer;
+    QTimer* m_timer = nullptr;
     int m_count;
 };
 

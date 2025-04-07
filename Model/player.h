@@ -71,6 +71,10 @@ public:
     // 存储出牌玩家打出的牌
     void onStorePendingInfo(Player* player, Cards& cards);
 
+    // 判断是否提示过最后一两张牌，避免反复提醒
+    bool getIsNotice(int n);
+    void setHasNotice(int n);
+
     virtual void prepareCallLord();
     virtual void preparePlayHand();
 signals:
@@ -88,11 +92,14 @@ protected:
     Direction m_direction;
     Type m_type;
     bool m_isWin;
-    Player* m_prev;
-    Player* m_next;
+    Player* m_prev = nullptr;
+    Player* m_next = nullptr;
     Cards m_cards;//玩家手牌
     Cards m_pendCards;
     Player* m_pendPlayer = nullptr;
+
+    bool m_1isNotice = false;
+    bool m_2isNotice = false;
 };
 
 #endif // PLAYER_H

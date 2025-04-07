@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 project(QtLandlord VERSION 0.1 LANGUAGES CXX)
 
@@ -42,6 +42,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         View/endingpanel.h View/endingpanel.cpp
         View/countdown.h View/countdown.cpp
         Core/bgmcontrol.h Core/bgmcontrol.cpp
+        View/loading.h View/loading.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET QtLandlord APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -62,6 +63,7 @@ else()
 endif()
 
 target_include_directories(QtLandlord PRIVATE
+    ${CMAKE_SOURCE_DIR}/
     ${CMAKE_SOURCE_DIR}/Model
     ${CMAKE_SOURCE_DIR}/View
     ${CMAKE_SOURCE_DIR}/Core
@@ -96,3 +98,16 @@ install(TARGETS QtLandlord
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(QtLandlord)
 endif()
+
+if(WIN32)
+    target_sources(QtLandlord PRIVATE logo.rc)
+endif()
+
+qt_generate_deploy_app_script(
+    TARGET QtLandlord
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+install(SCRIPT ${deploy_script})
+
+set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/install)

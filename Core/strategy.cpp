@@ -261,7 +261,7 @@ Cards Strategy::getGreaterCards(PlayHand type)
     Cards remain = m_cards;
     remain.remove(Strategy(m_player, remain).pickOptimalSeqSingles());
 
-    auto beatCard = std::bind([=](Cards &cards){
+    auto beatCard = std::bind([=](const Cards &cards){
         QVector<Cards> beatCardsArray = Strategy(m_player, remain).findCardType(type, true);
         if(!beatCardsArray.isEmpty()){
             if(m_player->getRole() != nextPlayer->getRole() && nextPlayer->getCards().cardCount() <= 2){

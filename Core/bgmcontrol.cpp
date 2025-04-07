@@ -22,6 +22,9 @@ BGMControl::BGMControl(QObject *parent)
         QAudioOutput* audioOutput = new QAudioOutput(this);
         QVector<QString> list = QVector<QString>();
 
+        connect(player, &QMediaPlayer::errorOccurred, [](QMediaPlayer::Error error){
+            qDebug() << "Media error:" << error;
+        });
         if(i<2 || i == 4){
             player->setLoops(1);// 只播放一次
         }else if(i==2){
@@ -172,8 +175,13 @@ void BGMControl::playCardMusic(Cards cards, bool isFirst, RoleSex sex)
     }else{
         url = QUrl(m_lists[index].at(number));
     }
+
+    if (m_players[index]->playbackState() == QMediaPlayer::PlayingState) {
+        m_players[index]->stop(); // 可选：等待一帧后再 setSource()
+    }
     m_players[index]->setSource(url);
     m_players[index]->play();
+
     if(number == Bomb || number == JokerBomb)
         playAssistMusic(BombVoice);
     if(number == Plane)
@@ -187,12 +195,16 @@ void BGMControl::playPassMusic(RoleSex sex)
     int random = QRandomGenerator::global()->bounded(4);
     QUrl url(m_lists[index].at(Pass1 + random));
 
+    if (m_players[index]->playbackState() == QMediaPlayer::PlayingState) {
+        m_players[index]->stop(); // 可选：等待一帧后再 setSource()
+    }
     m_players[index]->setSource(url);
     m_players[index]->play();
 }
 
 void BGMControl::playAssistMusic(AssistMusic type)
 {
+    // todo 选牌音效有bug
     if(type == Dispatch){
         // 循环播放
         m_players[3]->setLoops(-1);
@@ -202,12 +214,12 @@ void BGMControl::playAssistMusic(AssistMusic type)
     }
     QUrl url(m_lists[3].at(type));
 
-    if (m_players[3]->mediaStatus() == QMediaPlayer::MediaStatus::NoMedia ||
-        m_players[3]->mediaStatus() == QMediaPlayer::MediaStatus::LoadedMedia ||
-        m_players[3]->mediaStatus() == QMediaPlayer::MediaStatus::EndOfMedia) {
-        m_players[3]->setSource(url);
-        m_players[3]->play();
+    if (m_players[3]->playbackState() == QMediaPlayer::PlayingState) {
+        m_players[3]->stop();
     }
+    m_players[3]->setSource(url);
+    m_players[3]->play();
+
 }
 
 void BGMControl::stopAssistMusic()
@@ -229,20 +241,13 @@ void BGMControl::playEndingMusic(bool isWin)
 
 void BGMControl::playLastMusic(CardType type, RoleSex sex)
 {
+    // 和出牌使用同一个输出的话会被打断，用一下结束bgm的输出
     int index = sex == Man ? 0:1;
-    if(m_players[index]->playbackState() == QMediaPlayer::StoppedState){
-        setPlayIndex(index,type);
-        m_players[index]->play();
-    }else{
-        QTimer::singleShot(1500, this, [=](){
-            setPlayIndex(index,type);
-            m_players[index]->play();
-        });
-    }
+    QTimer::singleShot(1500, this, [=](){
+        QUrl url(m_lists[index].at(type));
+        m_players[4]->setSource(url);
+        m_players[4]->play();
+    });
+
 }
 
-void BGMControl::setPlayIndex(int role, int index)
-{
-    QUrl url(m_lists[role].at(index));
-    m_players[role]->setSource(url);
-}

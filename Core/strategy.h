@@ -53,7 +53,7 @@ private:
     Cards getBaseSeqSingle(Card::CardPoint point);
     QVector<Cards> getBomb(Card::CardPoint begin);
 private:
-    Player* m_player;
+    Player* m_player = nullptr;
     Cards m_cards;
 };
 

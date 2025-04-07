@@ -21,9 +21,9 @@ protected:
 
 private:
     QPixmap m_bkImg;
-    QLabel *m_title;
-    ScorePanel *m_score;
-    QPushButton *m_continue;
+    QLabel *m_title = nullptr;
+    ScorePanel *m_score = nullptr;
+    QPushButton *m_continue = nullptr;
 };
 
 #endif // ENDINGPANEL_H

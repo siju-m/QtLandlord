@@ -16,7 +16,7 @@ signals:
 protected:
     void run() override;
 private:
-    Robot* m_robot;
+    Robot* m_robot = nullptr;
 };
 
 #endif // ROBOTPLAYHAND_H

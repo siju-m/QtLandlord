@@ -113,7 +113,7 @@ public:
 signals:
 
 private:
-    void setPlayIndex(int role,int index);
+
 private:
     // man woman bgm 辅助音乐 结束音乐
     QVector<QMediaPlayer*> m_players;

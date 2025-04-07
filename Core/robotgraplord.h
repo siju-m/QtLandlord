@@ -14,7 +14,7 @@ public:
 protected:
     void run();
 private:
-    Robot* m_robot;
+    Robot* m_robot = nullptr;
 };
 
 #endif // ROBOTGRAPLORD_H

@@ -160,6 +160,26 @@ void Player::onStorePendingInfo(Player *player, Cards &cards)
     m_pendCards = cards;
 }
 
+bool Player::getIsNotice(int n)
+{
+    if(n == 1)
+        return m_1isNotice;
+
+    if(n == 2)
+        return m_2isNotice;
+
+    return true;
+}
+
+void Player::setHasNotice(int n)
+{
+    if(n == 1){
+        m_1isNotice = true;
+    }
+    if(n == 2)
+        m_2isNotice = true;
+}
+
 void Player::prepareCallLord()
 {
 

@@ -48,7 +48,7 @@ private:
     bool m_isFront;
     bool m_isSelected;
     Card m_card;
-    Player *m_owner;
+    Player *m_owner = nullptr;
 
 signals:
 };

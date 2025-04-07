@@ -421,10 +421,13 @@ void GamePanel::onDisposePlayHand(Player *player, Cards &cards)
     // 更新玩家剩余的牌
     updatePlayerCards(player);
     // 播放剩余牌提示音
-    if(player->getCards().cardCount() == 2){
+
+    if(player->getCards().cardCount() == 2 && !player->getIsNotice(2)){
         m_bgm->playLastMusic(BGMControl::Last2, (BGMControl::RoleSex)player->getSex());
-    }else if(player->getCards().cardCount() == 1){
+        player->setHasNotice(2);
+    }else if(player->getCards().cardCount() == 1 && !player->getIsNotice(1)){
         m_bgm->playLastMusic(BGMControl::Last1, (BGMControl::RoleSex)player->getSex());
+        player->setHasNotice(1);
     }
 }
 
